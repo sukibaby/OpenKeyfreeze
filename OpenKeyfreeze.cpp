@@ -1,9 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
-// Windows Header Files
 #include <windows.h>
 #include <shellapi.h>
 #include <strsafe.h>
-// C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
