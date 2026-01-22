@@ -1,0 +1,40 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - '**.cpp'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Add MSVC to PATH
+      uses: ilammy/msvc-dev-cmd@v1
+    
+    - name: Build with MSVC
+      run: |
+        cl.exe /EHsc /W4 OpenKeyfreeze.cpp user32.lib shell32.lib /Fe:OpenKeyfreeze.exe
+    
+    - name: Create artifacts directory
+      run: mkdir artifacts
+    
+    - name: Copy executable to artifacts
+      run: copy OpenKeyfreeze.exe artifacts/
+    
+    - name: Generate release tag
+      id: tag
+      run: echo "timestamp=$(Get-Date -Format 'yyyy-MM-dd-HH-mm-ss')" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+    
+    - name: Create GitHub Release and upload assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create "release-${{ steps.tag.outputs.timestamp }}" artifacts/OpenKeyfreeze.exe --title "Release ${{ steps.tag.outputs.timestamp }}" --target "${{ github.sha }}"
