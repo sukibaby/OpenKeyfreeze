@@ -9,6 +9,11 @@
 
 #define MAX_LOADSTRING 100
 #define WM_TRAYICON (WM_USER + 1)
+#define IDS_APP_TITLE 101
+#define IDC_OPENKEYFREEZE 102
+#define IDI_OPENKEYFREEZE 103
+#define IDI_SMALL 104
+#define IDM_EXIT 1001
 
 HINSTANCE g_instance;
 WCHAR g_title[MAX_LOADSTRING];
@@ -34,8 +39,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance,
 		return 1;
 	}
 
-	LoadStringW(instance, IDS_APP_TITLE, g_title, MAX_LOADSTRING);
-	LoadStringW(instance, IDC_OPENKEYFREEZE, g_window_class, MAX_LOADSTRING);
+	wcscpy_s(g_title, MAX_LOADSTRING, L"OpenKeyfreeze");
+	wcscpy_s(g_window_class, MAX_LOADSTRING, L"OpenKeyfreezeWindowClass");
 	MyRegisterClass(instance);
 
 	if (!InitInstance(instance, cmd_show)) {
@@ -70,7 +75,7 @@ BOOL InitInstance(HINSTANCE instance, int cmd_show) {
 	g_icon_locked = LoadIcon(GetModuleHandle(L"SHELL32.dll"), MAKEINTRESOURCE(200)); // 200 = red stop/"no" sign
 
 	g_notify_icon_data = { sizeof(NOTIFYICONDATA), hwnd, IDI_OPENKEYFREEZE, NIF_ICON | NIF_MESSAGE | NIF_TIP, WM_TRAYICON, g_icon_unlocked };
-	wcscpy_s(g_notify_icon_data.szTip, L"Keyboard Unlocked");
+	wcscpy_s(g_notify_icon_data.szTip, ARRAYSIZE(g_notify_icon_data.szTip), L"Keyboard Unlocked");
 	Shell_NotifyIcon(NIM_ADD, &g_notify_icon_data);
 
 	ShowWindow(hwnd, SW_HIDE);
@@ -86,13 +91,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param
 				UnhookWindowsHookEx(g_keyboard_hook);
 				g_is_keyboard_locked = false;
 				g_notify_icon_data.hIcon = g_icon_unlocked;
-				wcscpy_s(g_notify_icon_data.szTip, L"Keyboard Unlocked");
+				wcscpy_s(g_notify_icon_data.szTip, ARRAYSIZE(g_notify_icon_data.szTip), L"Keyboard Unlocked");
 			}
 			else {
 				g_keyboard_hook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, g_instance, 0);
 				g_is_keyboard_locked = true;
 				g_notify_icon_data.hIcon = g_icon_locked;
-				wcscpy_s(g_notify_icon_data.szTip, L"Keyboard Locked");
+				wcscpy_s(g_notify_icon_data.szTip, ARRAYSIZE(g_notify_icon_data.szTip), L"Keyboard Locked");
 			}
 			Shell_NotifyIcon(NIM_MODIFY, &g_notify_icon_data);
 		}
