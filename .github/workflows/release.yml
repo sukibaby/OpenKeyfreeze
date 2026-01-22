@@ -20,7 +20,7 @@ jobs:
     
     - name: Build with MSVC
       run: |
-        cl.exe /EHsc /W4 OpenKeyfreeze.cpp user32.lib shell32.lib /Fe:OpenKeyfreeze.exe
+        cl.exe /EHsc /W4 /DUNICODE /D_UNICODE OpenKeyfreeze.cpp user32.lib shell32.lib /Fe:OpenKeyfreeze.exe
     
     - name: Create artifacts directory
       run: mkdir artifacts
